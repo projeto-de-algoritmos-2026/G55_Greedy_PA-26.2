@@ -1,0 +1,65 @@
+id,artista,palco,dia,hora_inicio,hora_fim
+S001,Os Candangos Elétricos,P1,1,14:00,14:50
+S002,Luna Vermelha,P2,1,14:20,14:50
+S003,Maré de Concreto,P4,1,14:30,15:10
+S004,Trio Pequi,P3,1,15:00,16:00
+S005,Nébula Norte,P2,1,15:02,15:50
+S006,Cigarras de Agosto,P1,1,15:40,16:40
+S007,Vento Seco,P4,1,15:40,16:20
+S008,Dona Ipê,P3,1,16:00,17:00
+S009,Satélite Caipira,P2,1,16:20,17:10
+S010,Ruído Branco Coletivo,P4,1,16:50,17:40
+S011,Flor de Buriti,P3,1,17:00,18:00
+S012,Os Mangueiras,P2,1,17:20,18:00
+S013,Aurora Sintética,P1,1,17:30,18:40
+S014,Brasa & Neon,P3,1,18:09,19:30
+S015,Coral do Eixão,P4,1,18:10,19:00
+S016,Pássaro de Aço,P2,1,18:40,19:40
+S017,Linha Verde,P1,1,19:30,20:50
+S018,Noite no Planalto,P3,1,19:30,21:00
+S019,Kaleidoscópio,P4,1,19:30,20:20
+S020,Tamborete,P2,1,20:10,21:10
+S021,Cometa Azul,P4,1,20:50,21:40
+S022,Seca & Chuva,P3,1,21:00,22:30
+S023,Os Últimos Ônibus,P1,1,21:40,23:20
+S024,Mandacaru Club,P2,1,21:40,22:40
+S025,Voltagem,P4,1,22:10,23:10
+S026,Bruma,P3,1,22:30,00:00
+S027,Grilo Falante,P2,1,23:00,00:10
+S028,Chapada Sound System,P4,1,23:40,00:40
+S029,Fita Cassete,P1,1,23:59,01:40
+S030,Estação Rodoviária,P3,1,00:00,01:30
+S031,Maritaca,P2,1,00:40,01:40
+S032,Ondas Curtas,P3,1,01:30,03:00
+S033,Pôr do Sol no Lago,P1,2,14:00,15:00
+S034,Lanterna Mágica,P2,2,14:10,14:50
+S035,Cacto Digital,P4,2,14:40,15:20
+S036,Asa Norte Blues,P3,2,15:00,16:30
+S037,Os Vagalumes,P2,2,15:10,16:00
+S038,Bossa Brutal,P1,2,15:50,17:00
+S039,Terra Vermelha,P4,2,15:50,16:40
+S040,Hiperlink,P2,2,16:30,17:20
+S041,Café Coado,P3,2,16:30,18:00
+S042,Aquarela Punk,P4,2,17:10,18:00
+S043,Serra Dourada,P2,2,17:40,18:30
+S044,Poeira Cósmica,P1,2,17:50,19:00
+S045,Os Ventiladores,P3,2,18:00,19:20
+S046,Jabuticaba Jazz,P4,2,18:30,19:20
+S047,Fuso Horário,P2,2,19:00,20:00
+S048,Ninho de João-de-Barro,P3,2,19:20,20:50
+S049,Cerrado Rave,P1,2,19:50,21:20
+S050,Tropa do Batuque,P4,2,19:50,20:40
+S051,Maré Baixa,P2,2,20:30,21:30
+S052,Coruja Buraqueira,P3,2,20:50,22:20
+S053,Frequência Livre,P4,2,21:10,22:00
+S054,Ypê Amarelo,P2,2,22:00,23:00
+S055,Sol a Pino,P1,2,22:10,00:00
+S056,Retrovisor,P3,2,22:20,23:50
+S057,Os Pirilampos,P4,2,22:30,23:30
+S058,Bicicleta Elétrica,P2,2,23:30,00:30
+S059,Veredas,P3,2,23:50,01:20
+S060,Madrugada Sonora,P4,2,00:00,01:00
+S061,Paralelo 15,P1,2,00:50,02:20
+S062,Lua de Cristal,P2,2,01:00,02:00
+S063,Tatu-Bola,P3,2,01:20,02:50
+S064,Vinil Quebrado,P3,2,02:50,04:00
