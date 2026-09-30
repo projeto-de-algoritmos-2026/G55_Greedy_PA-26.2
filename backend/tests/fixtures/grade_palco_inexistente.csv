@@ -1,0 +1,4 @@
+id,artista,palco,dia,hora_inicio,hora_fim
+S001,Artista Alfa,P1,1,14:00,15:00
+S002,Artista Beta,P2,1,14:30,15:45
+S003,Artista Gama,P9,1,16:00,17:00
