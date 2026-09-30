@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+/*
+ * Tokens de design do RotaFest (SPEC 6.4).
+ * Cores de palco: no máximo cinco, todas com contraste >= 4.5:1 contra texto branco
+ * (P1 6.7, P2 6.5, P3 5.5, P4 7.0, P5 5.0). "descartado" (4.8) marca shows fora do roteiro.
+ */
+@theme {
+  --color-palco-1: #1d4ed8;
+  --color-palco-2: #b91c1c;
+  --color-palco-3: #047857;
+  --color-palco-4: #7e22ce;
+  --color-palco-5: #b45309;
+  --color-descartado: #6b7280;
+
+  --color-fundo: #fafaf7;
+  --color-superficie: #ffffff;
+  --color-borda: #e7e5e4;
+  --color-texto: #1c1917;
+  --color-texto-suave: #57534e;
+  --color-erro: #b91c1c;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-fundo text-texto font-sans antialiased;
+  }
+}
+
+/* Horários alinham em coluna na grade e na timeline. */
+@utility horario {
+  font-variant-numeric: tabular-nums;
+}
