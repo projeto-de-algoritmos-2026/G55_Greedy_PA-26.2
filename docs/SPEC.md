@@ -1,9 +1,9 @@
 # SPEC.md — Documento de Especificação Dirigida à Implementação
 
-**Projeto:** Setlist (G55_Greedy_PA-26.2)
+**Projeto:** RotaFest (G55_Greedy_PA-26.2)
 **Disciplina:** Projeto de Algoritmos — FGA/UnB — 2026.2
 **Conteúdo:** Greed (Algoritmos Ambiciosos)
-**Versão do documento:** 1.0
+**Versão do documento:** 1.1 (contratos das seções 3 e 4 congelados, ver D-6 a D-12)
 **Status:** Aprovado para implementação
 
 ---
@@ -132,11 +132,13 @@ Esta é a definição central do projeto. Existem **dois modos**, e a distinçã
 
 #### Modo A — Deslocamento uniforme
 
-Assume-se um tempo constante `δ` entre quaisquer dois palcos distintos.
+Assume-se um tempo constante `δ` entre **quaisquer dois shows consecutivos do roteiro, inclusive no mesmo palco** (D-6).
 
 ```
 compativel_A(i, j) ⟺ fim[i] + δ ≤ inicio[j]
 ```
+
+Aplicar `δ` também ao mesmo palco não é detalhe: se o custo fosse 0 para o mesmo palco e `δ` para palcos distintos, a compatibilidade passaria a depender do par, exatamente como no Modo B, e a garantia de otimalidade do guloso deixaria de valer.
 
 Equivale a executar o algoritmo clássico sobre os intervalos transformados `[inicio, fim + δ]`. Como `δ` é constante, a transformação **preserva a ordem relativa dos términos**, e portanto **todas as garantias de otimalidade do guloso permanecem válidas**. Esta é a demonstração formal a ser escrita na task T-501.
 
@@ -182,8 +184,10 @@ S003,Artista Gama,P1,1,15:20,16:30
 | `artista` | string | Não vazio. Máximo 80 caracteres. |
 | `palco` | string | Deve existir em `palcos.json`. |
 | `dia` | inteiro | `>= 1`. |
-| `hora_inicio` | `HH:MM` | Formato de 24 horas. |
-| `hora_fim` | `HH:MM` | Se `hora_fim < hora_inicio`, interpretar como virada de dia e somar 1440 minutos. |
+| `hora_inicio` | `HH:MM` | Formato de 24 horas. Horários antes de 06:00 pertencem à madrugada do dia informado e recebem +1440 minutos (D-7). |
+| `hora_fim` | `HH:MM` | Mesma regra de `hora_inicio`. Após a normalização, `fim > inicio` é obrigatório. |
+
+**Regra do dia de festival (D-7):** um dia de festival vai de 06:00 às 05:59 do dia seguinte. A conversão é `minutos(h) = h` se `h >= 360`, senão `h + 1440`. Assim, um show de 23:30 a 01:00 resulta em `inicio=1410, fim=1500`, e um show de 00:30 a 01:30 do dia 1 resulta em `inicio=1470, fim=1530`, ficando corretamente depois dos shows da noite.
 
 **Erros de validação devem falhar de forma explícita**, com mensagem indicando a linha e a coluna. Importação parcial silenciosa é proibida.
 
@@ -192,7 +196,7 @@ S003,Artista Gama,P1,1,15:20,16:30
 ```json
 {
   "festival": "Nome do Festival",
-  "mapa": "mapa_festival.png",
+  "mapa": "mapa_festival.svg",
   "palcos": [
     { "codigo": "P1", "nome": "Palco Mundo", "x": 0.20, "y": 0.35 },
     { "codigo": "P2", "nome": "Sunset", "x": 0.65, "y": 0.30 },
@@ -223,7 +227,9 @@ Enviado pelo frontend a cada requisição de cálculo.
 }
 ```
 
-Shows não presentes em `pesos` assumem peso 1.
+Shows não presentes em `pesos` assumem peso 1. Pesos fora de 1..10 ou para ids inexistentes na grade do dia retornam 422.
+
+Este payload é incorporado a **toda** requisição de cálculo (seções 4.3 a 4.6), junto de `festival_id` (D-8).
 
 ---
 
@@ -231,6 +237,35 @@ Shows não presentes em `pesos` assumem peso 1.
 
 Base: `http://localhost:8000/api`
 Todas as respostas em JSON, UTF-8. Erros seguem o padrão do FastAPI com `detail` em português.
+
+### 4.0 `GET /health`
+
+**Resposta 200**
+```json
+{ "status": "ok" }
+```
+
+### 4.0.1 Requisição de cálculo (comum a 4.3, 4.4, 4.5 e 4.6)
+
+```json
+{
+  "festival_id": "festival-exemplo",
+  "dia": 1,
+  "modo_deslocamento": "uniforme",
+  "delta_uniforme": 12,
+  "pesos": { "S001": 8, "S005": 10 }
+}
+```
+
+| Campo | Regra |
+|---|---|
+| `festival_id` | Obrigatório. Deve existir em `GET /festivais`. |
+| `dia` | Obrigatório. `>= 1`. |
+| `modo_deslocamento` | `"uniforme"` ou `"matricial"`. Padrão: `modo_padrao` do `palcos.json`. |
+| `delta_uniforme` | Inteiro `>= 0`. Usado apenas no modo uniforme. Padrão: `delta_uniforme` do `palcos.json`. |
+| `pesos` | Opcional. Ausência de um show equivale a peso 1. |
+
+`POST /dimensionamento` ignora `modo_deslocamento`, `delta_uniforme` e `pesos`.
 
 ### 4.1 `GET /festivais`
 
@@ -256,15 +291,33 @@ Lista os festivais disponíveis no diretório de dados.
 }
 ```
 
+### 4.2.1 `GET /festivais/{id}/mapa`
+
+Retorna o `mapa_festival.svg` do festival (`image/svg+xml`). 404 se o festival não existir (D-10).
+
+### 4.2.2 `POST /festivais/importar`
+
+Importa uma grade própria (tela `/`). Requisição `multipart/form-data` com `arquivo` (CSV da seção 3.1) e `festival_base` (id de festival existente cujo `palcos.json` é reutilizado). O festival importado vive **apenas em memória** no backend, com id `upload-<hash do conteúdo>`, coerente com a ausência de persistência (1.5). CSV inválido retorna 422 com a lista de erros (D-9).
+
+**Resposta 201**
+```json
+{ "id": "upload-3f9a2c", "nome": "Grade importada", "dias": 1, "total_shows": 40 }
+```
+
+**Resposta 422 (erro de validação de CSV, também usada pelo loader)**
+```json
+{
+  "detail": "Grade inválida: 2 erro(s) encontrado(s).",
+  "erros": [
+    { "linha": 7, "coluna": "palco", "mensagem": "Palco 'P9' não existe em palcos.json." },
+    { "linha": 12, "coluna": "hora_fim", "mensagem": "Formato inválido '25:00'; use HH:MM." }
+  ]
+}
+```
+
 ### 4.3 `POST /roteiro/maximo-shows`
 
-Resolve Q1.
-
-**Requisição**
-```json
-{ "festival_id": "festival-exemplo", "dia": 1,
-  "modo_deslocamento": "uniforme", "delta_uniforme": 12 }
-```
+Resolve Q1. Requisição conforme 4.0.1.
 
 **Resposta 200**
 ```json
@@ -290,7 +343,7 @@ Resolve Q2. Mesmo formato de requisição e resposta, com `estrategia` igual a `
 
 ### 4.5 `POST /dimensionamento`
 
-Resolve Q3.
+Resolve Q3. Requisição conforme 4.0.1.
 
 **Resposta 200**
 ```json
@@ -331,6 +384,8 @@ Resolve Q4. Executa todas as estratégias sobre a mesma instância.
 }
 ```
 
+**Definição de `gap_percentual` (D-12):** `gap = (peso_otimo − peso_estrategia) / peso_otimo × 100`, arredondado a uma casa, onde `peso_otimo` é o `peso_total` da melhor solução exata do modo (DP ponderada no Modo A, DAG no Modo B). Calculado apenas para as heurísticas. Se `peso_otimo = 0` (grade vazia), o gap é 0.
+
 ### 4.7 `POST /validar` (endpoint de desenvolvimento)
 
 Executa força bruta e compara com o resultado dos algoritmos. Recusa instâncias com mais de 20 shows, retornando 422.
@@ -338,6 +393,10 @@ Executa força bruta e compara com o resultado dos algoritmos. Recusa instância
 ---
 
 ## 5. Especificação dos Algoritmos
+
+### 5.0 Regra geral de desempate (D-11)
+
+Toda ordenação usa chave composta `(critério, id)`. Exemplo: ordenar por término é ordenar por `(fim_efetivo, id)`. Isso vale para os algoritmos exatos, para as heurísticas e para o partitioning, e torna todos os resultados determinísticos e testáveis.
 
 ### 5.1 Interval Scheduling (Q1, Modo A)
 
@@ -509,7 +568,7 @@ G55_Greedy_PA-26.2/
 │   │   │   ├── festival-exemplo/
 │   │   │   │   ├── grade_festival.csv
 │   │   │   │   ├── palcos.json
-│   │   │   │   └── mapa_festival.png
+│   │   │   │   └── mapa_festival.svg
 │   │   ├── routers/
 │   │   │   ├── festivais.py
 │   │   │   ├── roteiro.py
@@ -525,7 +584,9 @@ G55_Greedy_PA-26.2/
 │   │   └── fixtures/
 │   ├── scripts/
 │   │   ├── gerar_instancias.py
-│   │   └── benchmark.py
+│   │   ├── benchmark.py
+│   │   └── validar_dados.py
+│   ├── pyproject.toml
 │   └── requirements.txt
 ├── frontend/
 │   ├── src/
@@ -541,6 +602,7 @@ G55_Greedy_PA-26.2/
 │   ├── provas_formais.md
 │   ├── analise_experimental.md
 │   └── img/
+├── CLAUDE.md
 ├── README.md
 └── .gitignore
 ```
@@ -715,7 +777,7 @@ Uma task está concluída quando **todos** os itens abaixo são verdadeiros:
 - [ ] Existe teste automatizado, exceto para tasks exclusivamente de interface.
 - [ ] O código não contém `TODO`, `FIXME` nem código comentado.
 - [ ] Funções públicas possuem docstring com complexidade declarada.
-- [ ] O commit referencia o ID da task no formato `T-203: implementa DP ponderada`.
+- [ ] O commit referencia o que foi feito sem referenciar algo do spec.
 - [ ] Nenhum teste existente quebrou.
 
 ---
@@ -756,6 +818,13 @@ Uma task está concluída quando **todos** os itens abaixo são verdadeiros:
 | D-3 | Modo B resolvido por DAG, não por guloso | Honestidade algorítmica; vira material de análise | 2.5 |
 | D-4 | Profundidade máxima calculada por varredura independente | Verificação cruzada contra o partitioning | 5.3 |
 | D-5 | Provas esboçadas no dia da implementação | Evita provas fracas escritas sem contexto | 10 |
+| D-6 | No Modo A, `δ` vale para todo par consecutivo, inclusive no mesmo palco | Custo dependente do par quebraria a transformação uniforme e a garantia do guloso | 2.5 |
+| D-7 | Dia de festival de 06:00 às 05:59; horários antes de 06:00 recebem +1440 | Shows que começam após a meia-noite ficariam no início do dia | 3.1 |
+| D-8 | `pesos` e `festival_id` fazem parte de toda requisição de cálculo | Sem pesos na requisição, Q2 é impossível | 4.0.1 |
+| D-9 | Upload de CSV via `POST /festivais/importar`, reaproveitando `palcos.json` de festival base, só em memória | A tela `/` previa upload sem endpoint; CSV sozinho não traz palcos nem matriz | 4.2.2 |
+| D-10 | `GET /health` e `GET /festivais/{id}/mapa` no contrato; mapa em SVG | Endpoints usados por CA e pela interface não estavam contratados; SVG é versionável | 4.0, 4.2.1 |
+| D-11 | Toda ordenação desempata por `id` | Resultados determinísticos em todos os algoritmos, não só no término | 5.0 |
+| D-12 | `gap_percentual` definido sobre `peso_total` contra a melhor solução exata | A métrica não estava definida; o exemplo de 4.6 confirma essa leitura | 4.6 |
 
 ---
 
