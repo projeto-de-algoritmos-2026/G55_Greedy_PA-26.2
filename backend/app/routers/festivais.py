@@ -1,10 +1,18 @@
 """Endpoints de festivais, grade e mapa."""
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, File, Form, HTTPException, Query, UploadFile
 from fastapi.responses import FileResponse
 
-from app.models.schemas import FestivalResumo, GradeResponse, ShowGrade
-from app.services.loader import caminho_festival, carregar_festival, listar_festivais
+from app.models.schemas import FestivalResumo, GradeResponse, ImportarResponse, ShowGrade
+from app.services.loader import (
+    caminho_mapa,
+    carregar_festival,
+    listar_festivais,
+    registrar_festival_importado,
+)
+
+TAMANHO_MAXIMO_CSV = 1024 * 1024
+FESTIVAL_BASE_PADRAO = "festival-exemplo"
 
 router = APIRouter(prefix="/festivais", tags=["festivais"])
 
@@ -41,7 +49,24 @@ def get_grade(festival_id: str, dia: int = Query(default=1, ge=1)) -> GradeRespo
 def get_mapa(festival_id: str) -> FileResponse:
     """Imagem SVG do mapa do festival."""
     festival = carregar_festival(festival_id)
-    arquivo = caminho_festival(festival_id) / festival.mapa
+    arquivo = caminho_mapa(festival)
     if not arquivo.is_file():
         raise HTTPException(status_code=404, detail=f"Mapa do festival '{festival.nome}' não encontrado.")
     return FileResponse(arquivo, media_type="image/svg+xml")
+
+
+@router.post("/importar", response_model=ImportarResponse, status_code=201)
+async def post_importar(
+    arquivo: UploadFile = File(description="CSV da grade: id,artista,palco,dia,hora_inicio,hora_fim"),
+    festival_base: str = Form(FESTIVAL_BASE_PADRAO, description="Festival cujos palcos e mapa são reaproveitados"),
+) -> ImportarResponse:
+    """Importa uma grade própria. Fica só em memória e some quando o servidor reinicia."""
+    bruto = await arquivo.read(TAMANHO_MAXIMO_CSV + 1)
+    if len(bruto) > TAMANHO_MAXIMO_CSV:
+        raise HTTPException(status_code=422, detail="O arquivo excede o limite de 1 MB.")
+    try:
+        conteudo = bruto.decode("utf-8")
+    except UnicodeDecodeError:
+        raise HTTPException(status_code=422, detail="O arquivo precisa estar em UTF-8.") from None
+    festival = registrar_festival_importado(conteudo, festival_base)
+    return ImportarResponse(id=festival.id, nome=festival.nome, dias=festival.dias, total_shows=len(festival.shows))

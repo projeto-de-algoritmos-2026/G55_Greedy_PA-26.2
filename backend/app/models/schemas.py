@@ -1,6 +1,6 @@
 """Schemas de requisição e resposta da API. Espelhados em frontend/src/types/index.ts."""
 
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field
 
@@ -61,6 +61,20 @@ class ErroLinha(BaseModel):
     mensagem: str
 
 
+class ErroCampo(BaseModel):
+    """Erro de validação de um campo da requisição."""
+
+    campo: str
+    mensagem: str
+
+
+class ErroValidacaoResponse(BaseModel):
+    """Corpo 422 para requisição malformada."""
+
+    detail: str
+    erros: list[ErroCampo]
+
+
 class ErroImportacaoResponse(BaseModel):
     """Corpo 422 para grade inválida."""
 
@@ -79,11 +93,13 @@ class RequisicaoCalculo(BaseModel):
     dia: int = Field(ge=1)
     modo_deslocamento: ModoDeslocamento | None = None
     delta_uniforme: int | None = Field(default=None, ge=0)
-    pesos: dict[str, int] = Field(default_factory=dict)
+    pesos: dict[str, Annotated[int, Field(ge=PESO_MIN, le=PESO_MAX)]] = Field(default_factory=dict)
 
-    def peso_invalido(self) -> str | None:
-        """Retorna o id do primeiro peso fora de [1, 10], ou None. O(k)."""
-        return next((i for i, p in self.pesos.items() if not PESO_MIN <= p <= PESO_MAX), None)
+
+class RequisicaoValidar(RequisicaoCalculo):
+    """Requisição de `POST /validar`. `shows` restringe a instância a um subconjunto do dia."""
+
+    shows: list[str] | None = None
 
 
 class Deslocamento(BaseModel):
@@ -143,3 +159,22 @@ class ComparativoResponse(BaseModel):
     instancia: InstanciaResumo
     resultados: list[ResultadoEstrategia]
     gap_percentual: dict[str, float]
+
+
+class ItemValidacao(BaseModel):
+    """Comparação de um algoritmo com a força bruta em uma métrica."""
+
+    algoritmo: Estrategia
+    metrica: Literal["total_shows", "peso_total"]
+    valor_algoritmo: int
+    valor_forca_bruta: int
+    confere: bool
+
+
+class ValidarResponse(BaseModel):
+    """Resposta de `POST /validar`."""
+
+    total_shows: int
+    modo_deslocamento: ModoDeslocamento
+    itens: list[ItemValidacao]
+    todos_conferem: bool

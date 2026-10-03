@@ -28,6 +28,7 @@ class Festival(BaseModel):
     id: str
     nome: str = Field(min_length=1)
     mapa: str
+    diretorio: str  # pasta em data/ de onde vêm o mapa e os palcos (a do festival base, se importado)
     palcos: tuple[Palco, ...]
     deslocamento: ConfigDeslocamento
     shows: tuple[Show, ...]

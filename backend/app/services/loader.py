@@ -5,6 +5,7 @@ com linha e coluna, e nenhum show é devolvido se houver qualquer erro.
 """
 
 import csv
+import hashlib
 import io
 import json
 import re
@@ -160,17 +161,61 @@ def carregar_festival_de_diretorio(diretorio: Path) -> Festival:
         id=diretorio.name,
         nome=dados["festival"],
         mapa=dados["mapa"],
+        diretorio=diretorio.name,
         palcos=palcos,
         deslocamento=deslocamento,
         shows=tuple(shows),
     )
 
 
-@lru_cache(maxsize=32)
+# Festivais importados por upload vivem só em memória e somem quando o servidor reinicia.
+_importados: dict[str, Festival] = {}
+
+
 def carregar_festival(festival_id: str) -> Festival:
-    """Carrega um festival do diretório de dados, com cache. O(n + p³) na primeira chamada."""
-    diretorio = caminho_festival(festival_id)
-    return carregar_festival_de_diretorio(diretorio)
+    """Festival importado ou do diretório de dados. O(1) para importados e em cache."""
+    if festival_id in _importados:
+        return _importados[festival_id]
+    return _carregar_do_disco(festival_id)
+
+
+@lru_cache(maxsize=32)
+def _carregar_do_disco(festival_id: str) -> Festival:
+    return carregar_festival_de_diretorio(caminho_festival(festival_id))
+
+
+def registrar_festival_importado(conteudo: str, festival_base: str) -> Festival:
+    """Valida um CSV de grade e o registra em memória com os palcos do festival base. O(n).
+
+    O id é derivado do conteúdo, então importar o mesmo arquivo duas vezes devolve o mesmo
+    festival. Levanta ErroImportacao se o CSV for inválido ou não tiver shows.
+    """
+    base = carregar_festival(festival_base)
+    shows = ler_grade(conteudo, {p.codigo for p in base.palcos})
+    if not shows:
+        raise ErroImportacao([ErroLinha(linha=2, coluna="linha", mensagem="O arquivo não tem nenhum show.")])
+    resumo = hashlib.sha256(f"{base.id}\n{conteudo}".encode()).hexdigest()[:8]
+    festival = Festival(
+        id=f"upload-{resumo}",
+        nome=f"Grade importada ({base.nome})",
+        mapa=base.mapa,
+        diretorio=base.diretorio,
+        palcos=base.palcos,
+        deslocamento=base.deslocamento,
+        shows=tuple(shows),
+    )
+    _importados[festival.id] = festival
+    return festival
+
+
+def limpar_importados() -> None:
+    """Remove todos os festivais importados. O(1)."""
+    _importados.clear()
+
+
+def caminho_mapa(festival: Festival) -> Path:
+    """Arquivo do mapa do festival. O(1)."""
+    return DATA_DIR / festival.diretorio / festival.mapa
 
 
 def caminho_festival(festival_id: str) -> Path:
@@ -182,9 +227,10 @@ def caminho_festival(festival_id: str) -> Path:
 
 
 def listar_festivais() -> list[Festival]:
-    """Todos os festivais do diretório de dados, em ordem de id. O(f · (n + p³))."""
-    return [
+    """Festivais do diretório de dados em ordem de id, seguidos dos importados. O(f · (n + p³))."""
+    do_disco = [
         carregar_festival(d.name)
         for d in sorted(DATA_DIR.iterdir())
         if d.is_dir() and (d / ARQUIVO_PALCOS).is_file()
     ]
+    return do_disco + sorted(_importados.values(), key=lambda f: f.id)
