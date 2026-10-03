@@ -1,6 +1,6 @@
 // Cliente tipado da API.
 
-import type { ErroApi, ErroLinha, FestivalResumo, GradeResponse } from '../types'
+import type { ErroApi, ErroCampo, ErroLinha, FestivalResumo, GradeResponse } from '../types'
 
 const BASE_URL = `${import.meta.env.VITE_API_URL ?? ''}/api`
 
@@ -8,13 +8,19 @@ const BASE_URL = `${import.meta.env.VITE_API_URL ?? ''}/api`
 export class ApiError extends Error {
   readonly status: number
   readonly erros: ErroLinha[]
+  readonly campos: ErroCampo[]
 
-  constructor(status: number, mensagem: string, erros: ErroLinha[] = []) {
+  constructor(status: number, mensagem: string, erros: ErroLinha[] = [], campos: ErroCampo[] = []) {
     super(mensagem)
     this.name = 'ApiError'
     this.status = status
     this.erros = erros
+    this.campos = campos
   }
+}
+
+function ehErroLinha(erro: ErroLinha | ErroCampo): erro is ErroLinha {
+  return 'linha' in erro
 }
 
 function ehErroApi(corpo: unknown): corpo is ErroApi {
@@ -34,7 +40,15 @@ async function requisitar<T>(caminho: string, init?: RequestInit): Promise<T> {
 
   const corpo: unknown = await resposta.json().catch(() => null)
   if (!resposta.ok) {
-    if (ehErroApi(corpo)) throw new ApiError(resposta.status, corpo.detail, corpo.erros)
+    if (ehErroApi(corpo)) {
+      const erros: (ErroLinha | ErroCampo)[] = corpo.erros ?? []
+      throw new ApiError(
+        resposta.status,
+        corpo.detail,
+        erros.filter(ehErroLinha),
+        erros.filter((e): e is ErroCampo => !ehErroLinha(e)),
+      )
+    }
     throw new ApiError(resposta.status, `O backend respondeu ${resposta.status} sem detalhes.`)
   }
   return corpo as T

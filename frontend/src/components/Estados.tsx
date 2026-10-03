@@ -31,6 +31,15 @@ export function Erro({ erro }: { erro: ApiError }) {
           ))}
         </ul>
       )}
+      {erro.campos.length > 1 && (
+        <ul className="mt-2 space-y-1 text-sm text-texto-suave">
+          {erro.campos.map((e) => (
+            <li key={e.campo}>
+              <code>{e.campo}</code>: {e.mensagem}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }

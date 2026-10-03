@@ -267,6 +267,36 @@ A suíte inclui a comparação dos algoritmos exatos com a enumeração exaustiv
 7. Use a aba **"Dimensionamento"** para executar o Interval Partitioning e visualizar o número mínimo de palcos ao lado do gráfico de sobreposição por faixa horária.
 8. Use a aba **"Comparativo"** para comparar o guloso e as soluções exatas contra FIFO, SPT e maior preferência.
 
+### API
+
+Todas as rotas ficam sob `/api` e estão documentadas, com exemplos executáveis, em `http://localhost:8000/docs`.
+
+| Método e rota | O que responde |
+|---|---|
+| `GET /festivais` | Festivais disponíveis, com número de dias e de shows |
+| `GET /festivais/{id}/grade?dia=1` | Palcos e shows de um dia |
+| `GET /festivais/{id}/mapa` | Mapa do festival em SVG |
+| `POST /festivais/importar` | Importa uma grade própria em CSV (fica só em memória) |
+| `POST /roteiro/maximo-shows` | Roteiro com mais shows assistidos por completo |
+| `POST /roteiro/maxima-satisfacao` | Roteiro com a maior soma de notas de preferência |
+| `POST /dimensionamento` | Número mínimo de palcos, alocação e sobreposição por horário |
+| `POST /comparativo` | Guloso, solução exata e heurísticas lado a lado, com a perda de cada heurística |
+| `POST /validar` | Algoritmos contra força bruta em até 20 shows |
+
+As rotas `POST` de cálculo recebem o mesmo corpo:
+
+```json
+{
+  "festival_id": "festival-exemplo",
+  "dia": 1,
+  "modo_deslocamento": "matricial",
+  "delta_uniforme": 12,
+  "pesos": { "S023": 10, "S013": 7 }
+}
+```
+
+`modo_deslocamento` e `delta_uniforme` são opcionais e, quando omitidos, usam o padrão do festival. Shows sem peso valem 1. Toda resposta de roteiro traz `otimo_garantido`, que indica se o resultado é comprovadamente ótimo. Erros respondem com `detail` em português.
+
 ---
 
 ## Screenshots

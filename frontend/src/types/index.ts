@@ -77,6 +77,26 @@ export interface RequisicaoCalculo {
   pesos?: Pesos
 }
 
+// Validação contra força bruta (no máximo 20 shows; use `shows` para escolher um subconjunto do dia)
+export interface RequisicaoValidar extends RequisicaoCalculo {
+  shows?: string[]
+}
+
+export interface ItemValidacao {
+  algoritmo: Estrategia
+  metrica: 'total_shows' | 'peso_total'
+  valor_algoritmo: number
+  valor_forca_bruta: number
+  confere: boolean
+}
+
+export interface ValidarResponse {
+  total_shows: number
+  modo_deslocamento: ModoDeslocamento
+  itens: ItemValidacao[]
+  todos_conferem: boolean
+}
+
 // Roteiro
 export interface Deslocamento {
   de: string
@@ -134,7 +154,18 @@ export interface ComparativoResponse {
 }
 
 // Erros padrão do FastAPI com detail em português
+export interface ErroCampo {
+  campo: string
+  mensagem: string
+}
+
+export interface ErroValidacaoResponse {
+  detail: string
+  erros: ErroCampo[]
+}
+
+// Erros da API: detail sempre em português; erros por linha do CSV ou por campo da requisição
 export interface ErroApi {
   detail: string
-  erros?: ErroLinha[]
+  erros?: ErroLinha[] | ErroCampo[]
 }
