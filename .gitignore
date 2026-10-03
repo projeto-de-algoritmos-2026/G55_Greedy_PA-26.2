@@ -17,6 +17,11 @@ dist/
 .env
 .env.local
 
+# Documentos internos de planejamento
+docs/SPEC.md
+docs/decisoes-spec.md
+CLAUDE.md
+
 # Sistema e editores
 .DS_Store
 .idea/

@@ -125,8 +125,6 @@ Implementadas exclusivamente para contraste empírico:
 
 ## Estrutura do Projeto
 
-A estrutura completa e comentada está na seção 7 da [especificação](./docs/SPEC.md).
-
 ```
 G55_Greedy_PA-26.2/
 ├── backend/
@@ -151,7 +149,6 @@ G55_Greedy_PA-26.2/
 │   ├── package.json
 │   └── vite.config.ts
 ├── docs/
-│   ├── SPEC.md
 │   ├── provas_formais.md
 │   └── analise_experimental.md
 └── README.md
