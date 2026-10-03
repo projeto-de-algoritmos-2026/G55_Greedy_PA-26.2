@@ -121,6 +121,12 @@ Implementadas exclusivamente para contraste empírico:
 | **pytest** | Testes unitários e verificação contra força bruta |
 | **Uvicorn** | Servidor ASGI |
 
+### Infraestrutura
+
+| Tecnologia | Uso |
+|---|---|
+| **Docker** e **Docker Compose** | Execução de backend e frontend com um único comando |
+
 ---
 
 ## Estrutura do Projeto
@@ -136,7 +142,8 @@ G55_Greedy_PA-26.2/
 │   │   ├── data/           # festivais: grade_festival.csv, palcos.json, mapa
 │   │   └── main.py
 │   ├── tests/
-│   ├── scripts/            # validação de dados, gerador de instâncias, benchmark
+│   ├── scripts/            # validação de dados, gerador de instâncias, relatórios
+│   ├── Dockerfile
 │   ├── pyproject.toml
 │   └── requirements.txt
 ├── frontend/
@@ -146,22 +153,20 @@ G55_Greedy_PA-26.2/
 │   │   ├── services/api.ts
 │   │   ├── types/index.ts
 │   │   └── utils/tempo.ts
+│   ├── Dockerfile
 │   ├── package.json
 │   └── vite.config.ts
 ├── docs/
 │   ├── provas_formais.md
-│   └── analise_experimental.md
+│   ├── analise_experimental.md
+│   └── dados/              # dados brutos que sustentam a análise experimental
+├── docker-compose.yml
 └── README.md
 ```
 
 ---
 
 ## Instalação e Execução
-
-### Pré-requisitos
-
-- [uv](https://docs.astral.sh/uv/) (instala o Python 3.12 automaticamente)
-- Node.js 20 ou superior e npm
 
 ### 1. Clonando o Repositório
 
@@ -170,56 +175,79 @@ git clone https://github.com/projeto-de-algoritmos-2026/G55_Greedy_PA-26.2.git
 cd G55_Greedy_PA-26.2
 ```
 
-### 2. Configurando o Backend
+### 2. Rodando com Docker (recomendado)
+
+Pré-requisito: [Docker Desktop](https://www.docker.com/products/docker-desktop/), ou Docker Engine com o plugin Compose v2.
+
+```bash
+docker compose up --build
+```
+
+O primeiro build leva alguns minutos; os seguintes usam cache. Quando os dois serviços estiverem no ar:
+
+| Endereço | Conteúdo |
+|---|---|
+| `http://localhost:5173` | Interface do RotaFest |
+| `http://localhost:8000/docs` | Documentação interativa da API |
+
+Para parar, use `Ctrl+C` ou, em outro terminal, `docker compose down`.
+
+O código é montado dentro dos containers, então alterações no backend e no frontend recarregam sozinhas. Depois de mudar dependências (`pyproject.toml` ou `package.json`), recrie as imagens com `docker compose up --build --renew-anon-volumes`.
+
+**Testes e scripts dentro do container:**
+
+```bash
+# Suíte completa de testes, incluindo a verificação contra força bruta
+docker compose run --rm backend uv run pytest
+
+# Validação dos dados do festival de exemplo
+docker compose run --rm backend uv run python scripts/validar_dados.py festival-exemplo
+
+# Relatório do guloso contra a solução exata no deslocamento matricial
+docker compose run --rm backend uv run python scripts/relatorio_modo_b.py
+```
+
+### 3. Rodando sem Docker
+
+Pré-requisitos: [uv](https://docs.astral.sh/uv/), que instala o Python 3.12 automaticamente, e Node.js 20.19 ou superior.
+
+**Backend**, em um terminal:
 
 ```bash
 cd backend
-
-# Instala o Python 3.12, cria o ambiente virtual e instala as dependências
 uv sync
-
-# Executa o servidor
 uv run uvicorn app.main:app --reload --port 8000
 ```
 
-O backend ficará disponível em `http://localhost:8000`.
-A documentação interativa da API fica em `http://localhost:8000/docs`.
-
-Sem uv, com Python 3.11 ou superior já instalado:
+**Frontend**, em outro terminal:
 
 ```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Os endereços são os mesmos da tabela acima. Em desenvolvimento, as chamadas do frontend para `/api` são encaminhadas ao backend pelo proxy do Vite.
+
+Sem uv, com Python 3.11 ou superior já instalado, o backend também roda com pip:
+
+```bash
+cd backend
 python -m venv .venv
 source .venv/bin/activate        # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8000
 ```
 
-### 3. Configurando o Frontend
+**Testes e scripts sem Docker**, a partir de `backend/`:
 
 ```bash
-# A partir da raiz do projeto, em outro terminal
-cd frontend
-npm install
-npm run dev
-```
-
-O frontend ficará disponível em `http://localhost:5173`. Em desenvolvimento, as chamadas para `/api` são encaminhadas ao backend pelo proxy do Vite. Para apontar para outro endereço, crie `frontend/.env` com `VITE_API_URL=http://host:porta`.
-
-### 4. Executando os Testes
-
-```bash
-cd backend
-uv run pytest -v
-```
-
-A suíte inclui a verificação das soluções gulosas contra força bruta em instâncias reduzidas, que é a evidência empírica da corretude.
-
-### 5. Validando os dados de um festival
-
-```bash
-cd backend
+uv run pytest
 uv run python scripts/validar_dados.py festival-exemplo
+uv run python scripts/relatorio_modo_b.py
 ```
+
+A suíte inclui a comparação dos algoritmos exatos com a enumeração exaustiva de todos os roteiros em 500 instâncias aleatórias, que é a evidência empírica da corretude.
 
 ---
 
