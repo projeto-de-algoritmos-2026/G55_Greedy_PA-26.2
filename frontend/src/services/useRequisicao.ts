@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { ApiError } from './api'
 
-// Os quatro estados obrigatórios de SPEC 6.3; "vazio" é decidido por quem consome.
+// Estados de uma requisição: carregando, sucesso e erro; "vazio" é decidido por quem consome.
 export type EstadoRequisicao<T> =
   | { status: 'carregando' }
   | { status: 'sucesso'; dados: T }

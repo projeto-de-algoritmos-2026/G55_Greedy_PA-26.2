@@ -1,4 +1,4 @@
-"""Testes da camada de dados (T-101 a T-105)."""
+"""Testes da camada de dados: modelos, loader e endpoints de festivais."""
 
 import logging
 
@@ -21,7 +21,7 @@ from app.services.loader import (
 PALCOS = {"P1", "P2"}
 
 
-# --- Conversão de horário (D-1, D-7) -------------------------------------------------
+# --- Conversão de horário e virada do dia de festival -------------------------------
 
 @pytest.mark.parametrize(("hora", "minutos"), [
     ("06:00", 360),
@@ -84,7 +84,7 @@ def test_erro_horario_invalido_reporta_todos_os_erros(ler_fixture):
 
 
 def test_importacao_nao_e_parcial(ler_fixture):
-    """Uma linha inválida invalida a grade inteira (SPEC 3.1)."""
+    """Uma linha inválida invalida a grade inteira; não há importação parcial."""
     with pytest.raises(ErroImportacao):
         ler_grade(ler_fixture("grade_palco_inexistente.csv"), PALCOS)
 
@@ -121,7 +121,7 @@ def test_linha_com_colunas_faltando():
     assert exc.value.erros[0].linha == 2
 
 
-# --- Modelos (T-101) --------------------------------------------------------------
+# --- Modelos -----------------------------------------------------------------------
 
 def test_show_com_fim_antes_do_inicio_e_invalido():
     with pytest.raises(ValidationError):
@@ -157,9 +157,9 @@ def test_violacao_triangular_gera_aviso_mas_e_aceita(caplog):
     assert "triangular" in caplog.text
 
 
-# --- Festival de exemplo e API (T-104) --------------------------------------------
+# --- Festival de exemplo e API -----------------------------------------------------
 
-def test_festival_exemplo_valida_contra_a_spec():
+def test_festival_exemplo_e_valido():
     festival = carregar_festival("festival-exemplo")
     assert len(festival.shows) >= 60
     assert festival.deslocamento.matriz.violacoes_triangulares() == []

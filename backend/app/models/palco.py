@@ -1,4 +1,4 @@
-"""Entidades Palco e MatrizDeslocamento (SPEC 2.3 e 2.4)."""
+"""Entidades Palco e MatrizDeslocamento."""
 
 import logging
 from itertools import permutations
@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 class Palco(BaseModel):
-    """Local físico de um show, posicionado por coordenadas relativas no mapa (D-2)."""
+    """Local físico de um show, posicionado por coordenadas relativas (0 a 1) sobre o mapa."""
 
     model_config = ConfigDict(frozen=True)
 
@@ -22,7 +22,7 @@ class Palco(BaseModel):
 class MatrizDeslocamento(RootModel[dict[str, dict[str, int]]]):
     """Tempo de caminhada em minutos entre pares de palcos.
 
-    Invariantes obrigatórias (SPEC 2.4): matriz quadrada, diagonal zero, simetria e
+    Invariantes obrigatórias: matriz quadrada, diagonal zero, simetria e
     valores não negativos. A desigualdade triangular não é exigida, mas sua violação
     é registrada em log de aviso.
     """

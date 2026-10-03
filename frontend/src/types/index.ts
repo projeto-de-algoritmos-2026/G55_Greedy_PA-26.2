@@ -1,5 +1,5 @@
-// Espelho dos contratos da SPEC seção 4 (backend/app/models/schemas.py).
-// Tempos sempre em minutos desde 00:00 do dia de festival (D-1, D-7).
+// Espelho dos contratos da API (backend/app/models/schemas.py).
+// Tempos sempre em minutos desde 00:00 do dia de festival; antes de 06:00 soma 1440.
 
 export type ModoDeslocamento = 'uniforme' | 'matricial'
 
@@ -15,12 +15,12 @@ export type Estrategia =
 
 export type Heuristica = 'fifo' | 'spt' | 'maior_peso'
 
-// 4.0
+// Health
 export interface HealthResponse {
   status: 'ok'
 }
 
-// 4.1
+// Festivais
 export interface FestivalResumo {
   id: string
   nome: string
@@ -28,7 +28,7 @@ export interface FestivalResumo {
   total_shows: number
 }
 
-// 4.2
+// Grade
 export interface Palco {
   codigo: string
   nome: string
@@ -52,7 +52,7 @@ export interface GradeResponse {
   shows: Show[]
 }
 
-// 4.2.2
+// Importação de CSV
 export type ImportarResponse = FestivalResumo
 
 export interface ErroLinha {
@@ -66,7 +66,7 @@ export interface ErroImportacaoResponse {
   erros: ErroLinha[]
 }
 
-// 4.0.1 (D-8)
+// Requisição comum às rotas de cálculo
 export type Pesos = Record<string, number>
 
 export interface RequisicaoCalculo {
@@ -77,7 +77,7 @@ export interface RequisicaoCalculo {
   pesos?: Pesos
 }
 
-// 4.3 e 4.4
+// Roteiro
 export interface Deslocamento {
   de: string
   para: string
@@ -97,7 +97,7 @@ export interface RoteiroResponse {
   tempo_execucao_ms: number
 }
 
-// 4.5
+// Dimensionamento
 export interface FaixaSobreposicao {
   minuto: number
   simultaneos: number
@@ -112,7 +112,7 @@ export interface DimensionamentoResponse {
   sobreposicao_por_faixa: FaixaSobreposicao[]
 }
 
-// 4.6 (gap_percentual segue D-12)
+// Comparativo: gap = (peso ótimo - peso da heurística) / peso ótimo x 100
 export interface InstanciaResumo {
   total_shows: number
   dia: number

@@ -1,4 +1,4 @@
-"""Schemas de requisição e resposta da API (SPEC 4). Espelhados em frontend/src/types/index.ts."""
+"""Schemas de requisição e resposta da API. Espelhados em frontend/src/types/index.ts."""
 
 from typing import Literal
 
@@ -25,7 +25,7 @@ class HealthResponse(BaseModel):
 
 
 class FestivalResumo(BaseModel):
-    """Item de `GET /festivais` (4.1)."""
+    """Item de `GET /festivais`."""
 
     id: str
     nome: str
@@ -34,7 +34,7 @@ class FestivalResumo(BaseModel):
 
 
 class ShowGrade(BaseModel):
-    """Show como exposto em `GET /festivais/{id}/grade` (4.2)."""
+    """Show como exposto em `GET /festivais/{id}/grade`."""
 
     id: str
     artista: str
@@ -45,7 +45,7 @@ class ShowGrade(BaseModel):
 
 
 class GradeResponse(BaseModel):
-    """Resposta de `GET /festivais/{id}/grade` (4.2)."""
+    """Resposta de `GET /festivais/{id}/grade`."""
 
     festival: str
     dia: int
@@ -54,7 +54,7 @@ class GradeResponse(BaseModel):
 
 
 class ErroLinha(BaseModel):
-    """Erro de validação de CSV localizado por linha e coluna (3.1)."""
+    """Erro de validação de CSV localizado por linha e coluna."""
 
     linha: int
     coluna: str
@@ -62,18 +62,18 @@ class ErroLinha(BaseModel):
 
 
 class ErroImportacaoResponse(BaseModel):
-    """Corpo 422 para grade inválida (4.2.2)."""
+    """Corpo 422 para grade inválida."""
 
     detail: str
     erros: list[ErroLinha]
 
 
 class ImportarResponse(FestivalResumo):
-    """Resposta 201 de `POST /festivais/importar` (4.2.2)."""
+    """Resposta 201 de `POST /festivais/importar`."""
 
 
 class RequisicaoCalculo(BaseModel):
-    """Requisição comum às rotas de cálculo (4.0.1, D-8)."""
+    """Requisição comum às rotas de cálculo. Shows ausentes em `pesos` valem 1."""
 
     festival_id: str
     dia: int = Field(ge=1)
@@ -96,7 +96,7 @@ class Deslocamento(BaseModel):
 
 
 class RoteiroResponse(BaseModel):
-    """Resposta de `/roteiro/maximo-shows` e `/roteiro/maxima-satisfacao` (4.3, 4.4)."""
+    """Resposta de `/roteiro/maximo-shows` e `/roteiro/maxima-satisfacao`."""
 
     estrategia: Estrategia
     otimo_garantido: bool
@@ -113,7 +113,7 @@ class FaixaSobreposicao(BaseModel):
 
 
 class DimensionamentoResponse(BaseModel):
-    """Resposta de `POST /dimensionamento` (4.5)."""
+    """Resposta de `POST /dimensionamento`."""
 
     palcos_minimos: int
     profundidade_maxima: int
@@ -138,7 +138,7 @@ class ResultadoEstrategia(BaseModel):
 
 
 class ComparativoResponse(BaseModel):
-    """Resposta de `POST /comparativo` (4.6). `gap_percentual` segue D-12."""
+    """Resposta de `POST /comparativo`. gap = (peso ótimo - peso da heurística) / peso ótimo x 100."""
 
     instancia: InstanciaResumo
     resultados: list[ResultadoEstrategia]

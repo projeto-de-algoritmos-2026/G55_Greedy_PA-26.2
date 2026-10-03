@@ -1,4 +1,4 @@
-// Conversão entre minutos do dia de festival e HH:MM (D-1, D-7).
+// Conversão entre minutos do dia de festival e HH:MM.
 // O dia de festival vai de 06:00 às 05:59; minutos >= 1440 são madrugada do dia seguinte.
 
 export const MINUTOS_DIA = 1440
@@ -17,7 +17,7 @@ export function viraDia(minutos: number): boolean {
   return minutos >= MINUTOS_DIA
 }
 
-/** Converte HH:MM em minutos do dia de festival, aplicando a regra de D-7. */
+/** Converte HH:MM em minutos do dia de festival, somando 1440 aos horários antes de 06:00. */
 export function hhmmParaMinutos(hora: string): number {
   const m = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(hora.trim())
   if (!m) throw new Error(`Formato inválido '${hora}'; use HH:MM de 24 horas.`)

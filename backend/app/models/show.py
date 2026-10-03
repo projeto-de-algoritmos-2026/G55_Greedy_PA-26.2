@@ -1,4 +1,4 @@
-"""Entidade Show (SPEC 2.2)."""
+"""Entidade Show."""
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -8,7 +8,7 @@ PESO_PADRAO = 1
 
 
 class Show(BaseModel):
-    """Apresentação única. Tempos em minutos desde 00:00 do dia de festival (D-1, D-7)."""
+    """Apresentação única. Tempos em minutos desde 00:00 do dia de festival; antes de 06:00 soma 1440."""
 
     model_config = ConfigDict(frozen=True)
 

@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /*
- * Tokens de design do RotaFest (SPEC 6.4).
+ * Tokens de design do RotaFest.
  * Cores de palco: no máximo cinco, todas com contraste >= 4.5:1 contra texto branco
  * (P1 6.7, P2 6.5, P3 5.5, P4 7.0, P5 5.0). "descartado" (4.8) marca shows fora do roteiro.
  */

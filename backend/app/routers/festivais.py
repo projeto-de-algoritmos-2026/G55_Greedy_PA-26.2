@@ -1,4 +1,4 @@
-"""Endpoints de festivais e grade (SPEC 4.1, 4.2 e 4.2.1)."""
+"""Endpoints de festivais, grade e mapa."""
 
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import FileResponse
@@ -39,7 +39,7 @@ def get_grade(festival_id: str, dia: int = Query(default=1, ge=1)) -> GradeRespo
 
 @router.get("/{festival_id}/mapa", response_class=FileResponse)
 def get_mapa(festival_id: str) -> FileResponse:
-    """Imagem SVG do mapa do festival (D-10)."""
+    """Imagem SVG do mapa do festival."""
     festival = carregar_festival(festival_id)
     arquivo = caminho_festival(festival_id) / festival.mapa
     if not arquivo.is_file():

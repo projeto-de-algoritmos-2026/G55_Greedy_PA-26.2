@@ -1,6 +1,6 @@
 import type { Palco } from '../types'
 
-// Classes literais para o Tailwind detectar (SPEC 6.4: no máximo cinco cores, uma por palco).
+// Classes literais para o Tailwind detectar (no máximo cinco cores, uma por palco).
 const FUNDOS = ['bg-palco-1', 'bg-palco-2', 'bg-palco-3', 'bg-palco-4', 'bg-palco-5'] as const
 const TEXTOS = ['text-palco-1', 'text-palco-2', 'text-palco-3', 'text-palco-4', 'text-palco-5'] as const
 

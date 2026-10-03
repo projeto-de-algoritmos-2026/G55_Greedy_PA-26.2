@@ -7,8 +7,7 @@ import type { GradeResponse } from '../types'
 import { mapearCoresPalcos } from '../utils/palcos'
 import { formatarDuracao, minutosParaHHMM, viraDia } from '../utils/tempo'
 
-// Marco do Dia 1 (SPEC 10): a grade real renderizada em lista simples.
-// A grade visual por palco (GradeFestival) entra na T-603.
+// Grade do dia renderizada em lista simples, ordenada por horário de início.
 export function Planejador() {
   const [params] = useSearchParams()
   const festivalId = params.get('festival') ?? ''

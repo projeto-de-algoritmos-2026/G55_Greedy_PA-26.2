@@ -1,4 +1,4 @@
-"""Agregado Festival: palcos, configuração de deslocamento e grade (SPEC 3.2)."""
+"""Agregado Festival: palcos, configuração de deslocamento e grade."""
 
 from typing import Literal
 
@@ -49,5 +49,5 @@ class Festival(BaseModel):
         return max((s.dia for s in self.shows), default=0)
 
     def shows_do_dia(self, dia: int) -> list[Show]:
-        """Shows do dia ordenados por (inicio, id), conforme D-11. O(n log n)."""
+        """Shows do dia ordenados por (inicio, id); o id desempata. O(n log n)."""
         return sorted((s for s in self.shows if s.dia == dia), key=lambda s: (s.inicio, s.id))

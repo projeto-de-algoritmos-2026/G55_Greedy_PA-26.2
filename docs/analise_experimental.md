@@ -1,9 +1,9 @@
 # Análise Experimental
 
-Toda afirmação numérica deste documento deve vir acompanhada do dado que a sustenta (T-801).
+Resultados empíricos do RotaFest. Toda afirmação numérica vem acompanhada do dado que a sustenta.
 
-## 1. Guloso contra DAG no Modo B (T-305)
+## 1. Guloso contra DAG no Modo B
 
-## 2. Tempo de execução contra tamanho da instância (T-704)
+## 2. Tempo de execução contra tamanho da instância
 
 ## 3. Comparativo entre estratégias no festival de exemplo

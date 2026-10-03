@@ -1,11 +1,10 @@
-// Cliente tipado da API (SPEC 4). Nesta fase cobre apenas festivais e grade;
-// os endpoints de cálculo entram na T-601.
+// Cliente tipado da API.
 
 import type { ErroApi, ErroLinha, FestivalResumo, GradeResponse } from '../types'
 
 const BASE_URL = `${import.meta.env.VITE_API_URL ?? ''}/api`
 
-/** Erro com a mensagem do backend (SPEC 6.3: nada de mensagem genérica). */
+/** Erro com a mensagem do backend (nunca uma mensagem genérica). */
 export class ApiError extends Error {
   readonly status: number
   readonly erros: ErroLinha[]

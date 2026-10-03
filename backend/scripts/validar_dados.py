@@ -1,4 +1,4 @@
-"""Valida os dados de um festival contra as regras de SPEC 3.1 e as invariantes de 2.4.
+"""Valida a grade de um festival e as invariantes da matriz de deslocamento.
 
 Uso: uv run python scripts/validar_dados.py <festival_id>
 """
@@ -50,7 +50,7 @@ def main(festival_id: str) -> int:
     print(f"Desigualdade triangular: {'OK' if not violacoes else f'{len(violacoes)} violação(ões)'}")
 
     if len(festival.shows) < MIN_SHOWS:
-        print(f"ERRO: a grade deve ter no mínimo {MIN_SHOWS} shows (T-005).")
+        print(f"ERRO: a grade deve ter no mínimo {MIN_SHOWS} shows.")
         return 1
     print("Resultado: dados válidos.")
     return 0

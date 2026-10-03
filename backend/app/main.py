@@ -38,7 +38,7 @@ api = APIRouter(prefix="/api")
 
 @api.get("/health", response_model=HealthResponse, tags=["infra"])
 def health() -> HealthResponse:
-    """Verificação de disponibilidade (D-10)."""
+    """Verificação de disponibilidade."""
     return HealthResponse()
 
 

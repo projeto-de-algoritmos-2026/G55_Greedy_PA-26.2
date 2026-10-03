@@ -1,4 +1,4 @@
-"""Leitura e validação dos dados de festival (SPEC 3.1 e 3.2).
+"""Leitura e validação dos dados de festival (grade_festival.csv e palcos.json).
 
 A importação é tudo ou nada: todos os erros do CSV são coletados e reportados juntos,
 com linha e coluna, e nenhum show é devolvido se houver qualquer erro.
@@ -24,7 +24,7 @@ ARQUIVO_PALCOS = "palcos.json"
 
 COLUNAS = ["id", "artista", "palco", "dia", "hora_inicio", "hora_fim"]
 MINUTOS_DIA = 1440
-CORTE_DIA_FESTIVAL = 6 * 60  # D-7: o dia de festival vai de 06:00 às 05:59
+CORTE_DIA_FESTIVAL = 6 * 60  # o dia de festival vai de 06:00 às 05:59
 MAX_ARTISTA = 80
 
 _RE_HORA = re.compile(r"^([01]\d|2[0-3]):([0-5]\d)$")
@@ -44,7 +44,7 @@ class FestivalNaoEncontrado(LookupError):
 
 
 def hhmm_para_minutos(hora: str) -> int:
-    """Converte `HH:MM` em minutos do dia de festival, aplicando a virada de D-7. O(1).
+    """Converte `HH:MM` em minutos do dia de festival, somando 1440 aos horários antes de 06:00. O(1).
 
     Horários antes de 06:00 pertencem à madrugada e recebem +1440.
     Levanta ValueError se o formato não for HH:MM de 24 horas.
