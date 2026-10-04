@@ -239,6 +239,14 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8000
 ```
 
+**Testes do frontend**, a partir de `frontend/`:
+
+```bash
+npm run test        # utilitários, incluindo o contraste mínimo de 4,5:1 da paleta
+npx playwright install chromium   # só na primeira vez
+npm run capturas    # com a aplicação no ar: capturas em docs/img e verificações de usabilidade
+```
+
 **Testes e scripts sem Docker**, a partir de `backend/`:
 
 ```bash
@@ -301,15 +309,19 @@ As rotas `POST` de cálculo recebem o mesmo corpo:
 
 ## Screenshots
 
-<!-- AJUSTAR: substituir pelos prints reais -->
+Capturas reais em 1366×768, geradas por `npm run capturas` (Playwright) com a aplicação no ar.
 
-| Grade do festival | Rota no mapa |
+| Escolha do festival e do dia | Planejador: mais shows com tempo fixo entre shows |
 | :---: | :---: |
-| ![Grade](./docs/img/grade.png) | ![Mapa](./docs/img/mapa.png) |
+| ![Tela inicial com o lineup do dia](./docs/img/selecao.png) | ![Grade com o roteiro numerado](./docs/img/grade.png) |
 
-| Comparativo entre estratégias | Dimensionamento de palcos |
+| Mais satisfação com distância real e notas | Notas de preferência |
 | :---: | :---: |
-| ![Comparativo](./docs/img/comparativo.png) | ![Partitioning](./docs/img/partitioning.png) |
+| ![Roteiro de maior satisfação](./docs/img/planejador-satisfacao.png) | ![Painel de notas](./docs/img/notas.png) |
+
+| Rota no mapa e timeline | Estado de erro |
+| :---: | :---: |
+| ![Mapa com a rota numerada e a timeline](./docs/img/mapa.png) | ![Mensagem de erro do backend](./docs/img/estado-erro.png) |
 
 ---
 
