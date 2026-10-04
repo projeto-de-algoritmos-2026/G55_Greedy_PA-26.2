@@ -1,35 +1,77 @@
 @import "tailwindcss";
+@import "@fontsource-variable/bricolage-grotesque/standard.css";
+@import "@fontsource-variable/instrument-sans/standard.css";
 
 /*
- * Tokens de design do RotaFest.
- * Cores de palco: no máximo cinco, todas com contraste >= 4.5:1 contra texto branco
- * (P1 6.7, P2 6.5, P3 5.5, P4 7.0, P5 5.0). "descartado" (4.8) marca shows fora do roteiro.
+ * Sistema visual "Céu de Brasília".
+ * Fundo azul-crepúsculo; o amarelo-ipê marca exclusivamente o roteiro do usuário.
+ * Cores de palco recebem texto escuro (noite). Todos os pares texto/fundo têm contraste
+ * mínimo de 4,5:1, verificado em src/utils/contraste.test.ts.
  */
 @theme {
-  --color-palco-1: #1d4ed8;
-  --color-palco-2: #b91c1c;
-  --color-palco-3: #047857;
-  --color-palco-4: #7e22ce;
-  --color-palco-5: #b45309;
-  --color-descartado: #6b7280;
+  --color-noite: #0f1730;
+  --color-superficie: #18213f;
+  --color-superficie-alta: #222c52;
+  --color-linha: #2e3962;
+  --color-texto: #eef0f7;
+  --color-texto-suave: #a9b1cf;
+  --color-ipe: #f5c842;
+  --color-erro: #ff8f8f;
 
-  --color-fundo: #fafaf7;
-  --color-superficie: #ffffff;
-  --color-borda: #e7e5e4;
-  --color-texto: #1c1917;
-  --color-texto-suave: #57534e;
-  --color-erro: #b91c1c;
+  --color-palco-1: #e0663a;
+  --color-palco-2: #ee7fb0;
+  --color-palco-3: #4fc3d4;
+  --color-palco-4: #7cc97e;
+  --color-palco-5: #b79cf2;
 
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-sans: "Instrument Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Bricolage Grotesque Variable", "Instrument Sans Variable", ui-sans-serif, sans-serif;
 }
 
 @layer base {
+  html {
+    color-scheme: dark;
+  }
+
   body {
-    @apply bg-fundo text-texto font-sans antialiased;
+    @apply bg-noite text-texto font-sans antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ipe);
+    outline-offset: 2px;
   }
 }
 
-/* Horários alinham em coluna na grade e na timeline. */
+/* Horários alinham em coluna. */
 @utility horario {
   font-variant-numeric: tabular-nums;
+}
+
+/* Largura condensada do Bricolage para nomes de artistas em blocos estreitos. */
+@utility condensado {
+  font-variation-settings: "wdth" 75;
+}
+
+@keyframes desenhar-rota {
+  from {
+    stroke-dashoffset: var(--comprimento);
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@utility animar-rota {
+  stroke-dasharray: var(--comprimento);
+  animation: desenhar-rota 600ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

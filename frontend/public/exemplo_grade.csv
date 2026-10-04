@@ -1,0 +1,7 @@
+id,artista,palco,dia,hora_inicio,hora_fim
+S001,Banda de Abertura,P1,1,15:00,15:50
+S002,Duo do Fim de Tarde,P2,1,15:30,16:20
+S003,Coletivo da Tenda,P3,1,16:00,17:30
+S004,Quarteto do Buriti,P4,1,16:10,17:00
+S005,Atração Principal,P1,1,21:00,22:40
+S006,Fechamento da Madrugada,P3,1,23:30,01:30

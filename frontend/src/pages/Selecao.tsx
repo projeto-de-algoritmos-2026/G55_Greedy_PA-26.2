@@ -1,83 +1,119 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Cabecalho } from '../components/Cabecalho'
-import { Carregando, Erro, Vazio } from '../components/Estados'
+import { Carregando, Erro, Esqueleto, Vazio } from '../components/Estados'
+import { ImportarGrade } from '../components/ImportarGrade'
+import { PosterLineup } from '../components/PosterLineup'
 import { api } from '../services/api'
 import { useRequisicao } from '../services/useRequisicao'
 import type { FestivalResumo } from '../types'
 
 export function Selecao() {
-  const estado = useRequisicao(api.listarFestivais, [])
+  const festivais = useRequisicao(() => api.listarFestivais(), [])
 
   return (
-    <>
+    <div className="min-h-screen">
       <Cabecalho />
-      <main className="mx-auto max-w-3xl px-6 py-12">
-        <h1 className="text-3xl font-semibold tracking-tight">Monte seu roteiro de festival</h1>
-        <p className="mt-2 max-w-xl text-texto-suave">
-          Escolha o festival e o dia. O RotaFest calcula quais shows você consegue ver por completo,
-          considerando o tempo de caminhada entre os palcos.
-        </p>
-
-        <section className="mt-10">
-          {estado.status === 'carregando' && <Carregando texto="Buscando festivais…" />}
-          {estado.status === 'erro' && <Erro erro={estado.erro} />}
-          {estado.status === 'sucesso' &&
-            (estado.dados.length === 0 ? (
-              <Vazio titulo="Nenhum festival disponível" descricao="Adicione um diretório em backend/app/data." />
-            ) : (
-              <ListaFestivais festivais={estado.dados} />
-            ))}
-        </section>
+      <main className="mx-auto max-w-6xl px-10 pt-12 pb-16">
+        {festivais.status === 'carregando' && (
+          <Carregando texto="Carregando festivais">
+            <Esqueleto className="h-16 w-2/3" />
+            <Esqueleto className="mt-8 h-40" />
+          </Carregando>
+        )}
+        {festivais.status === 'erro' && <Erro erro={festivais.erro} />}
+        {festivais.status === 'sucesso' &&
+          (festivais.dados.length === 0 ? (
+            <>
+              <Vazio titulo="Nenhum festival disponível" descricao="Envie a grade de um festival em CSV para começar." />
+              <div className="max-w-md">
+                <ImportarGrade />
+              </div>
+            </>
+          ) : (
+            <Festival festivais={festivais.dados} />
+          ))}
       </main>
-    </>
+    </div>
   )
 }
 
-function ListaFestivais({ festivais }: { festivais: FestivalResumo[] }) {
+function Festival({ festivais }: { festivais: FestivalResumo[] }) {
   const navigate = useNavigate()
-  const [dias, setDias] = useState<Record<string, number>>({})
+  const [festivalId, setFestivalId] = useState(festivais[0]!.id)
+  const [dia, setDia] = useState(1)
+  const festival = festivais.find((f) => f.id === festivalId) ?? festivais[0]!
+  const grade = useRequisicao(() => api.obterGrade(festival.id, dia), [festival.id, dia])
 
   return (
-    <ul className="space-y-4">
-      {festivais.map((f) => {
-        const dia = dias[f.id] ?? 1
-        return (
-          <li key={f.id} className="rounded-xl border border-borda bg-superficie p-5">
-            <div className="flex flex-wrap items-end justify-between gap-4">
-              <div>
-                <h2 className="text-lg font-semibold">{f.nome}</h2>
-                <p className="text-sm text-texto-suave">
-                  {f.dias} {f.dias === 1 ? 'dia' : 'dias'} · {f.total_shows} shows
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <div role="radiogroup" aria-label={`Dia do ${f.nome}`} className="flex rounded-lg border border-borda p-0.5">
-                  {Array.from({ length: f.dias }, (_, i) => i + 1).map((d) => (
-                    <button
-                      key={d}
-                      role="radio"
-                      aria-checked={d === dia}
-                      onClick={() => setDias({ ...dias, [f.id]: d })}
-                      className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                        d === dia ? 'bg-texto text-fundo' : 'text-texto-suave hover:text-texto'
-                      }`}
-                    >
-                      Dia {d}
-                    </button>
-                  ))}
-                </div>
-                <button
-                  onClick={() => navigate(`/planejador?festival=${encodeURIComponent(f.id)}&dia=${dia}`)}
-                  className="rounded-lg bg-palco-1 px-4 py-2 text-sm font-medium text-white hover:opacity-90"
-                >
-                  Planejar
-                </button>
-              </div>
+    <>
+      {festivais.length > 1 && (
+        <div role="radiogroup" aria-label="Festival" className="mb-8 flex flex-wrap gap-2">
+          {festivais.map((f) => (
+            <button
+              key={f.id}
+              role="radio"
+              aria-checked={f.id === festival.id}
+              onClick={() => {
+                setFestivalId(f.id)
+                setDia(1)
+              }}
+              className={`rounded-full border px-3 py-1 text-sm ${f.id === festival.id ? 'border-texto text-texto' : 'border-linha text-texto-suave hover:text-texto'}`}
+            >
+              {f.nome}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <h1 className="font-display text-6xl font-extrabold tracking-tight">{festival.nome}</h1>
+      <p className="mt-3 max-w-2xl text-lg text-texto-suave">
+        {festival.total_shows} shows em {festival.dias} {festival.dias === 1 ? 'dia' : 'dias'}. Escolha o dia e veja o melhor roteiro para não perder nada.
+      </p>
+
+      {festival.dias > 1 && (
+          <div role="radiogroup" aria-label="Dia do festival" className="mt-10 flex gap-2">
+            {Array.from({ length: festival.dias }, (_, i) => i + 1).map((d) => (
+              <button
+                key={d}
+                role="radio"
+                aria-checked={d === dia}
+                onClick={() => setDia(d)}
+                className={`rounded-full px-5 py-2 font-display text-lg font-semibold transition-colors ${
+                  d === dia ? 'bg-texto text-noite' : 'bg-superficie text-texto-suave hover:text-texto'
+                }`}
+              >
+                Dia {d}
+              </button>
+            ))}
+          </div>
+      )}
+
+      <section className="mt-6 min-h-40">
+        {grade.status === 'carregando' && (
+          <Carregando texto="Carregando o lineup">
+            <div className="space-y-4">
+              <Esqueleto className="h-14 w-5/6" />
+              <Esqueleto className="h-9 w-4/6" />
+              <Esqueleto className="h-6 w-full" />
             </div>
-          </li>
-        )
-      })}
-    </ul>
+          </Carregando>
+        )}
+        {grade.status === 'erro' && <Erro erro={grade.erro} />}
+        {grade.status === 'sucesso' && <PosterLineup shows={grade.dados.shows} palcos={grade.dados.palcos} />}
+      </section>
+
+      <div className="mt-10 flex flex-wrap items-start gap-6">
+        <button
+          onClick={() => navigate(`/planejador?festival=${encodeURIComponent(festival.id)}&dia=${dia}`)}
+          className="rounded-xl bg-ipe px-6 py-3.5 font-display text-lg font-bold text-noite transition-transform hover:-translate-y-0.5"
+        >
+          Montar meu roteiro
+        </button>
+        <div className="w-96">
+          <ImportarGrade />
+        </div>
+      </div>
+    </>
   )
 }

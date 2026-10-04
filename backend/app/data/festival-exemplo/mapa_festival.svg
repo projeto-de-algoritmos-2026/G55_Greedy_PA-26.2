@@ -1,32 +1,32 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 625" role="img" aria-label="Mapa do Festival Cerrado Sonoro">
   <title>Mapa do Festival Cerrado Sonoro</title>
-  <rect width="1000" height="625" fill="#EEF0E4"/>
-  <path d="M0 520 C 180 470, 320 600, 520 560 S 860 470, 1000 520 L 1000 625 L 0 625 Z" fill="#DCE3CC"/>
-  <ellipse cx="480" cy="300" rx="120" ry="70" fill="#C9DDE8"/>
-  <text x="480" y="305" font-family="system-ui, sans-serif" font-size="16" fill="#4B6475" text-anchor="middle">Lago</text>
-  <g fill="none" stroke="#C8BFA8" stroke-width="18" stroke-linecap="round" stroke-linejoin="round">
+  <rect width="1000" height="625" fill="#18213F"/>
+  <path d="M0 520 C 180 470, 320 600, 520 560 S 860 470, 1000 520 L 1000 625 L 0 625 Z" fill="#1D2848"/>
+  <ellipse cx="480" cy="300" rx="120" ry="70" fill="#22385E"/>
+  <text x="480" y="309" font-family="system-ui, sans-serif" font-size="26" fill="#7F9CC0" text-anchor="middle">Lago</text>
+  <g fill="none" stroke="#2E3962" stroke-width="18" stroke-linecap="round" stroke-linejoin="round">
     <path d="M200 219 C 320 170, 520 150, 650 188"/>
     <path d="M650 188 C 760 260, 820 360, 800 450"/>
     <path d="M800 450 C 640 520, 440 520, 300 488"/>
     <path d="M300 488 C 220 400, 190 300, 200 219"/>
     <path d="M500 610 L 470 505"/>
   </g>
-  <g font-family="system-ui, sans-serif" font-size="14" fill="#5B5446" text-anchor="middle">
-    <rect x="455" y="585" width="90" height="30" rx="6" fill="#FFFFFF" stroke="#C8BFA8"/>
+  <g font-family="system-ui, sans-serif" font-size="20" fill="#A9B1CF" text-anchor="middle">
+    <rect x="440" y="578" width="120" height="40" rx="8" fill="#222C52" stroke="#3A4673"/>
     <text x="500" y="605">Entrada</text>
-    <rect x="380" y="400" width="110" height="34" rx="6" fill="#FFFFFF" stroke="#C8BFA8"/>
-    <text x="435" y="422">Alimentação</text>
-    <rect x="560" y="405" width="80" height="30" rx="6" fill="#FFFFFF" stroke="#C8BFA8"/>
-    <text x="600" y="425">Banheiros</text>
+    <rect x="360" y="396" width="150" height="42" rx="8" fill="#222C52" stroke="#3A4673"/>
+    <text x="435" y="424">Alimentação</text>
+    <rect x="545" y="397" width="120" height="40" rx="8" fill="#222C52" stroke="#3A4673"/>
+    <text x="605" y="424">Banheiros</text>
   </g>
-  <g font-family="system-ui, sans-serif" font-size="15" font-weight="600" text-anchor="middle" fill="#1F2937">
-    <rect x="130" y="184" width="140" height="70" rx="10" fill="#FFFFFF" stroke="#9CA3AF" stroke-width="2"/>
-    <text x="200" y="224">Palco Cerrado</text>
-    <rect x="580" y="153" width="140" height="70" rx="10" fill="#FFFFFF" stroke="#9CA3AF" stroke-width="2"/>
-    <text x="650" y="193">Palco Ipê</text>
-    <rect x="720" y="415" width="160" height="70" rx="10" fill="#FFFFFF" stroke="#9CA3AF" stroke-width="2"/>
-    <text x="800" y="455">Tenda Eletrônica</text>
-    <rect x="230" y="453" width="140" height="70" rx="10" fill="#FFFFFF" stroke="#9CA3AF" stroke-width="2"/>
-    <text x="300" y="493">Palco Buriti</text>
+  <g font-family="system-ui, sans-serif" font-size="26" font-weight="600" text-anchor="middle" fill="#EEF0F7">
+    <rect x="90" y="190" width="220" height="58" rx="12" fill="#222C52" stroke="#4A5684" stroke-width="2"/>
+    <text x="200" y="228">Palco Cerrado</text>
+    <rect x="560" y="159" width="180" height="58" rx="12" fill="#222C52" stroke="#4A5684" stroke-width="2"/>
+    <text x="650" y="197">Palco Ipê</text>
+    <rect x="690" y="421" width="220" height="58" rx="12" fill="#222C52" stroke="#4A5684" stroke-width="2"/>
+    <text x="800" y="459">Tenda Eletrônica</text>
+    <rect x="200" y="459" width="200" height="58" rx="12" fill="#222C52" stroke="#4A5684" stroke-width="2"/>
+    <text x="300" y="497">Palco Buriti</text>
   </g>
 </svg>

@@ -1,6 +1,19 @@
 // Cliente tipado da API.
 
-import type { ErroApi, ErroCampo, ErroLinha, FestivalResumo, GradeResponse } from '../types'
+import type {
+  ComparativoResponse,
+  DimensionamentoResponse,
+  ErroApi,
+  ErroCampo,
+  ErroLinha,
+  FestivalResumo,
+  GradeResponse,
+  ImportarResponse,
+  RequisicaoCalculo,
+  RequisicaoValidar,
+  RoteiroResponse,
+  ValidarResponse,
+} from '../types'
 
 const BASE_URL = `${import.meta.env.VITE_API_URL ?? ''}/api`
 
@@ -27,15 +40,14 @@ function ehErroApi(corpo: unknown): corpo is ErroApi {
   return typeof corpo === 'object' && corpo !== null && typeof (corpo as ErroApi).detail === 'string'
 }
 
-async function requisitar<T>(caminho: string, init?: RequestInit): Promise<T> {
+async function requisitar<T>(caminho: string, init: RequestInit = {}): Promise<T> {
   let resposta: Response
   try {
-    resposta = await fetch(`${BASE_URL}${caminho}`, {
-      ...init,
-      headers: { 'Content-Type': 'application/json', ...init?.headers },
-    })
-  } catch {
-    throw new ApiError(0, 'Não foi possível conectar ao backend. Verifique se ele está rodando na porta 8000.')
+    resposta = await fetch(`${BASE_URL}${caminho}`, init)
+  } catch (e) {
+    // Cancelamentos voltam como estão, para quem chamou poder ignorá-los.
+    if (e instanceof DOMException && e.name === 'AbortError') throw e
+    throw new ApiError(0, 'Não foi possível conectar ao backend. Rode docker compose up ou inicie o servidor na porta 8000.')
   }
 
   const corpo: unknown = await resposta.json().catch(() => null)
@@ -54,11 +66,42 @@ async function requisitar<T>(caminho: string, init?: RequestInit): Promise<T> {
   return corpo as T
 }
 
+function postJson<T>(caminho: string, corpo: RequisicaoCalculo | RequisicaoValidar, signal?: AbortSignal): Promise<T> {
+  return requisitar<T>(caminho, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(corpo),
+    signal,
+  })
+}
+
+const caminhoFestival = (festivalId: string) => `/festivais/${encodeURIComponent(festivalId)}`
+
+export type Objetivo = 'maximo-shows' | 'maxima-satisfacao'
+
 export const api = {
-  listarFestivais: () => requisitar<FestivalResumo[]>('/festivais'),
+  listarFestivais: (signal?: AbortSignal) => requisitar<FestivalResumo[]>('/festivais', { signal }),
 
-  obterGrade: (festivalId: string, dia: number) =>
-    requisitar<GradeResponse>(`/festivais/${encodeURIComponent(festivalId)}/grade?dia=${dia}`),
+  obterGrade: (festivalId: string, dia: number, signal?: AbortSignal) =>
+    requisitar<GradeResponse>(`${caminhoFestival(festivalId)}/grade?dia=${dia}`, { signal }),
 
-  urlMapa: (festivalId: string) => `${BASE_URL}/festivais/${encodeURIComponent(festivalId)}/mapa`,
+  urlMapa: (festivalId: string) => `${BASE_URL}${caminhoFestival(festivalId)}/mapa`,
+
+  importar: (arquivo: File, festivalBase?: string) => {
+    const dados = new FormData()
+    dados.append('arquivo', arquivo)
+    if (festivalBase) dados.append('festival_base', festivalBase)
+    return requisitar<ImportarResponse>('/festivais/importar', { method: 'POST', body: dados })
+  },
+
+  roteiro: (objetivo: Objetivo, req: RequisicaoCalculo, signal?: AbortSignal) =>
+    postJson<RoteiroResponse>(`/roteiro/${objetivo}`, req, signal),
+
+  dimensionamento: (req: RequisicaoCalculo, signal?: AbortSignal) =>
+    postJson<DimensionamentoResponse>('/dimensionamento', req, signal),
+
+  comparativo: (req: RequisicaoCalculo, signal?: AbortSignal) =>
+    postJson<ComparativoResponse>('/comparativo', req, signal),
+
+  validar: (req: RequisicaoValidar, signal?: AbortSignal) => postJson<ValidarResponse>('/validar', req, signal),
 }
