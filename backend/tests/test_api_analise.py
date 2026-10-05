@@ -69,3 +69,44 @@ def test_validar_com_show_de_outro_dia_retorna_422(cliente):
     resposta = cliente.post("/api/validar", json=BASE | {"shows": ["S001", "S040"]})
     assert resposta.status_code == 422
     assert "S040" in resposta.json()["detail"]
+
+
+def test_benchmark_retorna_pontos_para_cada_algoritmo(cliente):
+    """GET /benchmark com n pequeno deve retornar um ponto por algoritmo por n."""
+    resposta = cliente.get("/api/benchmark?ns=10&ns=20&repeticoes=1")
+    assert resposta.status_code == 200
+    corpo = resposta.json()
+    assert corpo["ns"] == [10, 20]
+    assert corpo["repeticoes"] == 1
+    assert len(corpo["pontos"]) == 8  # 4 algoritmos × 2 valores de n
+    algoritmos = {p["algoritmo"] for p in corpo["pontos"]}
+    assert algoritmos == {"interval_scheduling", "weighted_scheduling", "interval_partitioning", "dag_longest_path"}
+    for ponto in corpo["pontos"]:
+        assert ponto["tempo_ms_medio"] >= 0
+        assert ponto["complexidade"] in {"O(n log n)", "O(n²)"}
+
+
+def test_gerador_produz_shows_e_matriz():
+    """Verifica que gerar_instancia é determinístico e retorna o número correto de shows."""
+    from app.algorithms.gerador import gerar_instancia
+
+    shows1, matriz1 = gerar_instancia(n=15, palcos=3, seed=7)
+    shows2, matriz2 = gerar_instancia(n=15, palcos=3, seed=7)
+    assert len(shows1) == 15
+    assert all(s1.id == s2.id and s1.inicio == s2.inicio for s1, s2 in zip(shows1, shows2))
+    assert matriz1.model_dump() == matriz2.model_dump()
+    codigos = {s.palco for s in shows1}
+    assert codigos <= {"P1", "P2", "P3"}
+
+
+def test_gerador_raises_on_invalid_args():
+    from app.algorithms.gerador import gerar_instancia
+    import pytest as _pytest
+
+    with _pytest.raises(ValueError):
+        gerar_instancia(n=-1)
+    with _pytest.raises(ValueError):
+        gerar_instancia(n=5, palcos=0)
+    with _pytest.raises(ValueError):
+        gerar_instancia(n=5, densidade=0)
+

@@ -82,17 +82,17 @@ Implementadas exclusivamente para contraste empírico:
 ### Funcionalidades da aplicação
 
 - [x] Leitura da grade do festival via CSV, com validação por linha e coluna
-- [ ] Importação de CSV próprio pela interface
-- [ ] Atribuição de nota de preferência de 1 a 10 por show
-- [ ] Grade visual por palco e faixa horária, com selecionados e descartados
-- [ ] Deslocamento uniforme (`δ`) e matricial (distância entre palcos)
-- [ ] Timeline com horários, custo de deslocamento e folga entre shows
-- [ ] Rota sobre o mapa do festival com marcadores numerados
-- [ ] Indicador de otimalidade garantida em todo resultado
-- [ ] Painel comparativo entre o guloso, as soluções exatas e as heurísticas
-- [ ] Gráfico de sobreposição por faixa horária, evidenciando o pico que define o número mínimo de palcos
-- [ ] Verificador por força bruta para instâncias com até 20 shows
-- [ ] Gerador de instâncias sintéticas para teste de desempenho
+- [x] Importação de CSV próprio pela interface
+- [x] Atribuição de nota de preferência de 1 a 10 por show
+- [x] Grade visual por palco e faixa horária, com selecionados e descartados
+- [x] Deslocamento uniforme (`δ`) e matricial (distância entre palcos)
+- [x] Timeline com horários, custo de deslocamento e folga entre shows
+- [x] Rota sobre o mapa do festival com marcadores numerados
+- [x] Indicador de otimalidade garantida em todo resultado
+- [x] Painel comparativo entre o guloso, as soluções exatas e as heurísticas
+- [x] Gráfico de sobreposição por faixa horária, evidenciando o pico que define o número mínimo de palcos
+- [x] Verificador por força bruta para instâncias com até 20 shows
+- [x] Gerador de instâncias sintéticas para teste de desempenho
 
 ---
 
@@ -290,6 +290,7 @@ Todas as rotas ficam sob `/api` e estão documentadas, com exemplos executáveis
 | `POST /dimensionamento` | Número mínimo de palcos, alocação e sobreposição por horário |
 | `POST /comparativo` | Guloso, solução exata e heurísticas lado a lado, com a perda de cada heurística |
 | `POST /validar` | Algoritmos contra força bruta em até 20 shows |
+| `GET /benchmark` | Tempo de execução dos algoritmos para n crescente (padrão: 10..500 shows, 3 repetições) |
 
 As rotas `POST` de cálculo recebem o mesmo corpo:
 
@@ -325,13 +326,7 @@ Capturas reais em 1366×768, geradas por `npm run capturas` (Playwright) com a a
 
 ---
 
-## Vídeo de Apresentação
 
-<!-- AJUSTAR: inserir o link -->
-
-[Assista à apresentação do projeto](LINK_DO_VIDEO)
-
----
 
 ## Referências
 

@@ -63,4 +63,48 @@ Para garantir que o teste distingue um algoritmo certo de um errado: nas mesmas 
 
 ## 2. Tempo de execução contra tamanho da instância
 
+**Pergunta.** Os algoritmos comportam-se na prática de acordo com a complexidade assintótica teórica? 
+
+**Método.** Execução da bateria de benchmark (`T-704`) com instâncias de `n` variando de 10 a 1000 shows, 4 palcos e densidade 1.0. Foram realizadas 3 repetições por ponto para calcular a média de tempo de execução em milissegundos.
+
+Reprodução: `cd backend && uv run python scripts/benchmark.py --ns 10 20 50 100 200 500 1000 --repeticoes 3`.
+
+**Resultados (Tempo médio em ms).**
+
+| N Shows | Interval Scheduling | Weighted Scheduling | Interval Partitioning | DAG Longest Path |
+|---:|---:|---:|---:|---:|
+| **10** | 0.006 ms | 0.011 ms | 0.006 ms | 0.034 ms |
+| **20** | 0.010 ms | 0.016 ms | 0.009 ms | 0.070 ms |
+| **50** | 0.024 ms | 0.033 ms | 0.022 ms | 0.320 ms |
+| **100** | 0.052 ms | 0.065 ms | 0.046 ms | 1.166 ms |
+| **200** | 0.103 ms | 0.126 ms | 0.089 ms | 4.316 ms |
+| **500** | 0.252 ms | 0.325 ms | 0.224 ms | 25.109 ms |
+| **1000** | 0.498 ms | 0.653 ms | 0.427 ms | 95.208 ms |
+
+**Leitura.**
+
+- **O(n log n) confirmado:** `Interval Scheduling`, `Weighted Scheduling` (DP) e `Interval Partitioning` apresentam crescimento quase linear (ou $N \log N$) na prática. De $N=10$ para $N=1000$ (aumento de 100x), o tempo de execução aumentou cerca de 80-100x, permanecendo consistentemente abaixo de 1 milissegundo.
+- **O(n²) confirmado:** O `DAG Longest Path` (caminho máximo matricial) demonstra um claro comportamento quadrático. De $N=10$ para $N=100$ (10x), o tempo cresceu de 0.034 ms para 1.166 ms (~34x). De $N=100$ para $N=1000$ (10x), o tempo saltou para 95.208 ms (~81x), refletindo a explosão combinatória da criação e travessia das arestas no grafo denso de shows.
+
 ## 3. Comparativo entre estratégias no festival de exemplo
+
+**Pergunta.** Como o algoritmo guloso (e outras heurísticas comuns) se compara à solução exata em um cenário real do dia a dia?
+
+**Método.** Uso da rota de comparativo da API contra o `festival-exemplo` (32 shows), no dia 1, usando o deslocamento **matricial**. Adicionamos notas de preferência altas a quatro shows estrategicamente espalhados para simular um usuário com preferências claras (`S023`: 10, `S013`: 7, `S005`: 8, `S010`: 9). Todos os outros shows receberam peso 1.
+
+**Resultados.**
+
+| Estratégia | Shows | Peso Total | Tempo (ms) | Gap (%) | Ótimo Garantido |
+|---|---:|---:|---:|---:|:---:|
+| **DAG Longest Path** (Exata) | 8 | **32** | 0.101 | - | Sim |
+| **Guloso** (Menor Fim) | 10 | 17 | 0.016 | - | Não |
+| **FIFO** (Menor Início) | 10 | 17 | 0.019 | 46.9% | Não |
+| **SPT** (Menor Duração) | 8 | 8 | 0.018 | 75.0% | Não |
+| **Maior Peso** | 8 | 32 | 0.015 | 0.0% | Não |
+
+**Leitura.**
+
+- A heurística Gulosa (Menor Fim) e o FIFO priorizaram a *quantidade*, conseguindo encaixar 10 shows, mas acumularam apenas 17 de pontuação. Elas ignoraram shows mais longos ou de finais mais tardios que possuíam os grandes pesos.
+- O DAG Longest Path identificou o caminho ótimo no modo matricial, compondo um roteiro de apenas 8 shows, mas alcançando o pico de **32 pontos de satisfação**.
+- O SPT falhou completamente para maximizar satisfação, obtendo a pior pontuação (apenas 8 pontos, com 75% de perda), focando apenas em micro-shows irrelevantes.
+- Curiosamente, a heurística ingênua de Maior Peso acertou a pontuação ótima nesta instância específica (32 pontos e 0% de gap), mas sabemos pela teoria (e pelas demonstrações em `provas_formais.md`) que ela não possui nenhuma garantia matemática de fazê-lo e falharia rapidamente caso houvesse sobreposição pesada entre os melhores shows. Apenas o DAG (ou a DP no caso uniforme) garante o ótimo global.
