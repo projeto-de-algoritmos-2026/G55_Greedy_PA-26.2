@@ -134,7 +134,7 @@ export function Benchmark() {
                   const series: Record<string, PontoBenchmark[]> = {};
                   for (const p of resultado.pontos) {
                     if (!series[p.algoritmo]) series[p.algoritmo] = [];
-                    series[p.algoritmo].push(p);
+                    series[p.algoritmo]!.push(p);
                   }
 
                   return (
@@ -154,21 +154,6 @@ export function Benchmark() {
                         </div>
                       ))}
                       
-                      {/* Linhas SVG */}
-                      <svg className="absolute inset-0 h-full w-full overflow-visible" style={{ left: '3rem', width: 'calc(100% - 4rem)' }} preserveAspectRatio="none">
-                        {Object.entries(series).map(([algoritmo, pontos]) => {
-                          const pts = pontos.sort((a, b) => a.n - b.n).map((p) => {
-                            const x = (p.n / maxN) * 100;
-                            const y = 100 - ((p.tempo_ms_medio / maxTime) * 100);
-                            return `${x}%,${y}%`;
-                          }).join(' ');
-
-                          // O viewBox não funciona bem com porcentagens no polyline sem truques,
-                          // então vamos criar linhas diretamente no html
-                          return null;
-                        })}
-                      </svg>
-                      
                       {/* Desenhando linhas com div e clip-path (alternativa simples) ou pontinhos */}
                       {Object.entries(series).map(([algoritmo, pontos]) => {
                         return pontos.sort((a, b) => a.n - b.n).map((p, i, arr) => {
@@ -178,7 +163,7 @@ export function Benchmark() {
                           // Linha até o próximo ponto
                           let lineStyle = {};
                           if (i < arr.length - 1) {
-                            const next = arr[i+1];
+                            const next = arr[i+1]!;
                             const nextX = (next.n / maxN) * 100;
                             const nextY = (next.tempo_ms_medio / maxTime) * 100;
                             const dx = nextX - x;

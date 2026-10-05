@@ -106,15 +106,15 @@ export function Dimensionamento() {
                     const series = result.dados.sobreposicao_por_faixa;
                     if (series.length === 0) return null;
                     
-                    const minTime = series[0].minuto;
-                    const maxTime = series[series.length - 1].minuto;
+                    const minTime = series[0]!.minuto;
+                    const maxTime = series[series.length - 1]!.minuto;
                     const duration = maxTime - minTime;
                     
                     if (duration === 0) return null;
 
                     return series.map((ponto, i) => {
                       if (i === series.length - 1) return null;
-                      const nextPonto = series[i + 1];
+                      const nextPonto = series[i + 1]!;
                       
                       const widthPercent = ((nextPonto.minuto - ponto.minuto) / duration) * 100;
                       const heightPercent = (ponto.simultaneos / result.dados.profundidade_maxima) * 100;
