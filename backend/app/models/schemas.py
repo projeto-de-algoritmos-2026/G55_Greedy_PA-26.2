@@ -178,3 +178,21 @@ class ValidarResponse(BaseModel):
     modo_deslocamento: ModoDeslocamento
     itens: list[ItemValidacao]
     todos_conferem: bool
+
+
+class PontoBenchmark(BaseModel):
+    """Ponto de benchmark: tempo médio de um algoritmo para um dado n."""
+
+    n: int
+    algoritmo: str
+    complexidade: str
+    tempo_ms_medio: float
+
+
+class BenchmarkResponse(BaseModel):
+    """Resposta de `GET /benchmark`."""
+
+    ns: list[int]
+    repeticoes: int
+    delta_uniforme: int
+    pontos: list[PontoBenchmark]

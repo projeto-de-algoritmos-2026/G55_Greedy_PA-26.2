@@ -169,3 +169,18 @@ export interface ErroApi {
   detail: string
   erros?: ErroLinha[] | ErroCampo[]
 }
+
+// Benchmark (T-704)
+export interface PontoBenchmark {
+  n: number
+  algoritmo: string
+  complexidade: string
+  tempo_ms_medio: number
+}
+
+export interface BenchmarkResponse {
+  ns: number[]
+  repeticoes: number
+  delta_uniforme: number
+  pontos: PontoBenchmark[]
+}

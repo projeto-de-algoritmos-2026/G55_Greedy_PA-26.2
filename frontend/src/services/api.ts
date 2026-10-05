@@ -13,6 +13,7 @@ import type {
   RequisicaoValidar,
   RoteiroResponse,
   ValidarResponse,
+  BenchmarkResponse,
 } from '../types'
 
 const BASE_URL = `${import.meta.env.VITE_API_URL ?? ''}/api`
@@ -104,4 +105,6 @@ export const api = {
     postJson<ComparativoResponse>('/comparativo', req, signal),
 
   validar: (req: RequisicaoValidar, signal?: AbortSignal) => postJson<ValidarResponse>('/validar', req, signal),
+
+  benchmark: (signal?: AbortSignal) => requisitar<BenchmarkResponse>('/benchmark', { signal }),
 }

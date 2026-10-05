@@ -95,6 +95,16 @@ export function Planejador() {
           )}
         </div>
         <div className="ml-auto flex items-center gap-4">
+          <Link to={`/dimensionamento?${params.toString()}`} className="text-sm text-texto-suave hover:text-texto">
+            Dimensionamento
+          </Link>
+          <Link to={`/comparativo?${params.toString()}`} className="text-sm text-texto-suave hover:text-texto">
+            Comparativo
+          </Link>
+          <Link to={`/benchmark?${params.toString()}`} className="text-sm text-texto-suave hover:text-texto">
+            Benchmark
+          </Link>
+          <div className="h-4 w-px bg-linha/50" />
           <Link to="/" className="text-sm text-texto-suave hover:text-texto">
             Trocar festival
           </Link>
